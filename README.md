@@ -6,8 +6,6 @@
 
 Welcome to the frontend of SkillSwap! This is a modern, attractive, and fully functional UI designed to simulate a real-world platform where users can offer their skills in exchange for skills they need. The entire interface is built with mock data, making it ready for a backend team to integrate APIs with minimal effort.
 
-**(Añade aquí una captura de pantalla de tu página de inicio para que se vea aún mejor)**
-<!-- ![SkillSwap Screenshot](./screenshot.png) -->
 
 ---
 
