@@ -1,119 +1,113 @@
-
-
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
-import gsap from 'gsap';
-import PostCard from '../components/PostCard.jsx';
-import CreatePostModal from '../components/CreatePostModal.jsx';
-import Sidebar from '../components/Sidebar.jsx';
-import { useAppContext } from '../context/AppProvider.js';
-import { FaPlus } from 'react-icons/fa';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
+import { Button } from '@/components/ui/Button';
+import { FaUsers, FaExchangeAlt, FaLightbulb } from 'react-icons/fa';
+import { PostCard } from '@/components/posts/PostCard'; 
+import { usePosts } from '@/context/PostsContext'; 
 
-/* ---------- Splash ---------- */
-const SplashScreen = () => (
-  <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-indigo-600 to-purple-700">
-    <h1 className="text-5xl md:text-7xl font-extrabold text-white drop-shadow-lg animate-pulse">
-      SkillSwap
-    </h1>
-  </div>
+const FeatureCard = ({ icon, title, description, delay }) => (
+  <motion.div
+    initial={{ opacity: 0, y: 30 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ duration: 0.5, delay }}
+    className="text-center p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md"
+  >
+    <div className="flex justify-center items-center mb-4 text-primary-500">
+      {icon}
+    </div>
+    <h3 className="text-xl font-semibold mb-2">{title}</h3>
+    <p className="text-gray-600 dark:text-gray-400">{description}</p>
+  </motion.div>
 );
 
-/* ---------- Hero ---------- */
-const HeroSection = ({ onAddPostClick }) => {
-  const el = useRef(); // root hero div
-
-  useEffect(() => {
-    const q = gsap.utils.selector(el);
-    const tl = gsap.timeline({ defaults: { ease: 'power3.out' } });
-    tl.fromTo(q('h1'), { y: 60, opacity: 0 }, { y: 0, opacity: 1, duration: 1 })
-      .fromTo(q('p'), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.9 }, '-=0.6')
-      .fromTo(q('button'), { scale: 0.8, opacity: 0 }, { scale: 1, opacity: 1, duration: 0.7 }, '-=0.4');
-  }, []);
+export default function LandingPage() {
+  const { posts } = usePosts(); 
+  const examplePosts = (posts || []).slice(0, 3); 
 
   return (
-    <div ref={el} className="relative overflow-hidden rounded-3xl bg-white/70 backdrop-blur-xl border border-white/20 shadow-2xl p-8 md:p-16 mb-12 text-center">
-      <div className="absolute -top-24 -right-24 w-72 h-72 bg-gradient-to-br from-pink-400 to-purple-500 rounded-full blur-3xl opacity-30"></div>
-      <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-gradient-to-br from-indigo-400 to-blue-500 rounded-full blur-3xl opacity-30"></div>
-
-      <h1 className="text-5xl md:text-7xl font-extrabold text-gray-800 leading-tight">
-        Share Your Spark.
-        <br />
-        <span className="bg-gradient-to-r from-indigo-500 to-pink-500 bg-clip-text text-transparent">
+    <div className="container mx-auto px-4 py-8">
+      {/* Hero Section */}
+      <div className="text-center py-20 md:py-28">
+        <motion.h1 
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+          className="text-5xl md:text-7xl font-extrabold leading-tight
+                     bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 
+                     bg-clip-text text-transparent mb-6"
+        >
+          Share Your Spark.
+          <br/>
           Ignite Your Project.
-        </span>
-      </h1>
+        </motion.h1>
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.7, delay: 0.3 }}
+          className="text-lg text-gray-600 dark:text-gray-300 max-w-2xl mx-auto mb-8"
+        >
+          Welcome to a creative ecosystem where your passion is the ultimate currency. 
+          Trade your expertise and bring your vision to life—together.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.6 }}
+        >
+          <Link href="/register">
+            <Button size="lg">Get Started for Free</Button>
+          </Link>
+        </motion.div>
+      </div>
 
-      <p className="text-lg text-gray-600 mt-6 max-w-2xl mx-auto">
-        A creative ecosystem where passion is currency. Trade expertise with
-        brilliant minds and build together.
-      </p>
-
-      <button
-        onClick={onAddPostClick}
-        className="mt-10 px-8 py-4 rounded-full bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold shadow-lg hover:shadow-xl transform hover:-translate-y-1 transition-all duration-300 flex items-center mx-auto space-x-3"
-      >
-        <FaPlus />
-        <span>Post a Skill Swap</span>
-      </button>
-    </div>
-  );
-};
-
-/* ---------- Main Page ---------- */
-export default function Home() {
-  const { posts } = useAppContext();
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const postsRef = useRef();
-
-  useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 1500);
-    return () => clearTimeout(t);
-  }, []);
-
-  /* ---- Stagger cards on load ---- */
-  useEffect(() => {
-    if (!loading && posts.length) {
-      gsap.fromTo(
-        postsRef.current.children,
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, stagger: 0.12, duration: 0.6, ease: 'power3.out' }
-      );
-    }
-  }, [loading, posts]);
-
-  if (loading) return <SplashScreen />;
-
-  return (
-    <>
-      <div className="container mx-auto px-4 py-8">
-        <HeroSection onAddPostClick={() => setIsModalOpen(true)} />
-
-        <div className="flex flex-col lg:flex-row gap-10">
-          <main className="w-full lg:w-3/4">
-            <h2 className="text-3xl font-bold text-gray-800 mb-8">Latest Swaps</h2>
-            <div ref={postsRef} className="grid gap-6">
-              {posts.map((post) => (
-                <PostCard key={post.id} post={post} />
-              ))}
-            </div>
-          </main>
-
-          <Sidebar />
+      {/* Features Section */}
+      <div className="py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">How It Works</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          <FeatureCard 
+            icon={<FaLightbulb size={40} />}
+            title="Post a Skill"
+            description="Share what you're an expert in, or post a skill you need help with."
+            delay={0.2}
+          />
+          <FeatureCard 
+            icon={<FaExchangeAlt size={40} />}
+            title="Find a Match"
+            description="Browse posts from our talented community and find the perfect partner for your project."
+            delay={0.4}
+          />
+          <FeatureCard 
+            icon={<FaUsers size={40} />}
+            title="Collaborate & Grow"
+            description="Connect with your match, collaborate on projects, and grow your skills together."
+            delay={0.6}
+          />
         </div>
       </div>
 
-      {/* Floating + button */}
-      <button
-        onClick={() => setIsModalOpen(true)}
-        aria-label="Add post"
-        className="fixed bottom-8 right-8 w-16 h-16 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-xl hover:shadow-2xl transform hover:scale-110 transition grid place-items-center animate-pulse"
-      >
-        <FaPlus className="text-2xl" />
-      </button>
-
-      <CreatePostModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-    </>
+      {/* Example Posts Section */}
+      <div className="py-16">
+        <h2 className="text-3xl font-bold text-center mb-12">Latest Skill Swaps</h2>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {examplePosts.map((post, index) => (
+            <motion.div
+              key={post.id}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: index * 0.2 }}
+            >
+              <PostCard post={post} />
+            </motion.div>
+          ))}
+        </div>
+        <div className="text-center mt-12">
+          <Link href="/dashboard">
+            <Button variant="outline" size="lg">Explore More</Button>
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }
